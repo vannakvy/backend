@@ -2,8 +2,65 @@ import moment from "moment";
 export default {
   Query: {
 
-    // @Desc get data for the box 
+    // @Desc all tested 
     // Access auth 
+
+    getAllAllSampleTest:async(_,{},{PersonalInfo})=>{
+    // let data =  await PersonalInfo.aggregate([
+    //       {
+    //         $project: {
+    //             firstName: 1,
+    //             arraySize: { $cond: { if: { $isArray: "$sampleTest" }, then: { $size: "$sampleTest" }, else: 0} },
+    //             // arraySize: { $cond: [ $and: [{ if: { $isArray: "$sampleTest" }, then: { $size: "$sampleTest" }, else: 0}]]  }  
+    //         }
+    //       }
+    //   ] )
+
+      // $cond: [ {$and : [ { $eq: [ "$gender", "ប្រុស"] },
+      // { $gte: [ "$currentState.confirmedAt",today] }] }, 1,0 ]
+  
+      let today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+    let data =  await PersonalInfo.aggregate([
+        { "$match":{ "sampleTest.date": {$gte:today} } },
+        { "$project": {
+              "all": { "$size": "$sampleTest" }
+        } },
+        { "$group": {
+            "_id": 1,
+            "count": {
+                "$sum": "$all"
+            }
+        } }
+     ])
+
+
+     let dataAll =  await PersonalInfo.aggregate([
+      // { "$match":{ "sampleTest.date": {$gte:today} } },
+      { "$project": {
+            "all": { "$size": "$sampleTest" }
+      } },
+      { "$group": {
+          "_id": 1,
+          "count": {
+              "$sum": "$all"
+          }
+      } }
+   ])
+
+
+      let to = data.reduce(function(accumulator, currentValue) {
+        return accumulator + currentValue.count;
+      }, 0);
+      let al = dataAll.reduce(function(accumulator, currentValue) {
+        return accumulator + currentValue.count;
+      }, 0);
+      return {
+        today: to,
+        all:al
+      }
+    },
       
     //@Desc getAllProvinces
     //@Access auth
@@ -38,8 +95,6 @@ export default {
       let totalAffectedLocationOn = await AffectedLocation.countDocuments({
         $and: [{ openAt: {$ne: null} }, { closeAt: {$ne: null} }],
       });
-
-     
       if (district === "" || district === "ករំីណីទាំងអស់") {
         confirm = await PersonalInfo.countDocuments({
           "currentState.confirm": true,
@@ -67,7 +122,6 @@ export default {
         });
 
       } else {
-
         confirm = await PersonalInfo.countDocuments({
           $and: [{ "currentState.confirm": true }, { district: district }],
         });

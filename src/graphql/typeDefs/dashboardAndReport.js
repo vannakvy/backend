@@ -4,6 +4,7 @@ import {gql} from 'apollo-server-express'
 export default gql`
 
 extend type Query {
+    getAllAllSampleTest:Test
     getAllProvince(district:String): AllProvince!
     getAllDistrictForMap:[AllProvince!]!
     getDataForGrap: GraphResponse
@@ -12,6 +13,10 @@ extend type Query {
     affectedLocationReport:AffectedData 
     interviewForReport3Times:Inter
     getDataForGrapBottom:GraphResponse
+}
+type Test{
+today:Int 
+all:Int
 }
 type Inter{
     totalInterview:Int
